@@ -63,7 +63,7 @@ python scripts/run_batch.py --backend watsonx --limit 2
 python scripts/evaluate.py results/<run folder>
 ```
 
-The `watsonx` backend calls the watsonx.ai chat endpoint (`/ml/v1/text/chat`). It reads `WATSONX_APIKEY`, `WATSONX_PROJECT_ID`, `WATSONX_URL` and `WATSONX_MODEL_ID` from the environment or from a local `.env` file, which is git-ignored. The key and the token are never printed or written.
+The `watsonx` backend calls the watsonx.ai chat endpoint (`/ml/v1/text/chat`). It reads `WATSONX_APIKEY`, `WATSONX_PROJECT_ID`, `WATSONX_URL` and `WATSONX_MODEL_ID` from the environment or from a local `.env` file, which is git-ignored; `.env.example` shows the format. The key and the token are never printed or written. The model is `openai/gpt-oss-120b`, the same model the Orchestrate agents use; it is listed as available for chat in the Dallas region (`us-south`).
 
 `scripts/evaluate.py` checks four targets:
 
@@ -80,17 +80,24 @@ A student whose model call or reply parsing failed is marked `needs_attention`. 
 
 ## Importing into watsonx Orchestrate
 
-Install the ADK (`pip install ibm-watsonx-orchestrate`, Python 3.11+). In Orchestrate, open Settings → API details, copy the service instance URL and generate an API key. Then connect the CLI; it asks for the key at a prompt. Never put the key in a file or in a chat.
+Install the ADK (`pip install ibm-watsonx-orchestrate`, Python 3.11+; checked with version 2.19.1). In Orchestrate, open Settings → API details, copy the service instance URL and generate an API key. Then connect the CLI; it asks for the key at a prompt. Never put the key in a file or in a chat.
 
 ```bash
-orchestrate env add -n viva-prep -u <service instance URL> --type ibm_iam --activate
+orchestrate env add -n viva-prep -u <service instance URL> --activate
 DRY_RUN=1 bash scripts/import_orchestrate.sh   # prints the commands only
 bash scripts/import_orchestrate.sh
 ```
 
+The CLI infers the authentication type from the URL; `--type ibm_iam` is only needed if it guesses wrong.
+
 The script builds `build/orchestrate_pkg/`. The package contains only `viva_prep/`, the course documents, the submissions, the agent files and a `.txt` copy of each course document, because ADK knowledge bases do not accept `.md`. It then imports the three tool files, the `course_knowledge` knowledge base, the four specialist agents and, last, `coordinator`. The answer key is never part of the package; a test checks this.
 
-The command names follow the ADK documentation. The documentation does not say whether relative document paths in a knowledge-base file resolve against the file's folder or the current directory, or whether the referenced tools and agents must exist first. The script works in either case; both are to be confirmed on the first real import.
+What the ADK source (version 2.19.1) shows, checked offline against the built package:
+
+- The ADK's own loaders read all three tool files (7 tools), the knowledge-base file and all five agent files without errors. Every tool, collaborator and knowledge base an agent names exists in the package.
+- Document paths in a knowledge-base file resolve against that file's folder.
+- An agent import stops if a tool, knowledge base or collaborator it names does not exist yet in the instance. The script imports them in that order, with `coordinator` last.
+- The agent files have no `llm` field, so Orchestrate uses the instance's default model. If the instance has no default model, the import stops and asks for an `llm` field.
 
 ## Known limitations
 
