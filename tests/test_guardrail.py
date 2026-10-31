@@ -130,6 +130,75 @@ class TestBlocked:
 
     # --- Rule 2 (extended): authorship vouching via "own words" ---
 
+    # New cases from round 2 requirement
+    def test_own_words_vouching_your(self):
+        _blocked("Your answer is in your own words.")
+
+    def test_own_words_vouching_clearly(self):
+        _blocked("This is clearly in your own words.")
+
+    def test_own_words_mixed_vouching_and_teaching(self):
+        # The first sentence vouches → must still be blocked even though the
+        # second sentence is a legitimate teaching request.
+        _blocked(
+            "The explanation is in their own words."
+            " Ask the student to restate the definition in their own words."
+        )
+
+    def test_own_words_mixed_vouching_and_teaching_student(self):
+        _blocked(
+            "The explanation is in their own words."
+            " Ask the student to restate the definition in their own words.",
+            audience="student",
+        )
+
+    # Tightening round — mid-sentence verbs / trailing commas/colons must not exempt
+
+    def test_own_words_trailing_comma_coherent(self):
+        _blocked("The explanation is coherent and in their own words, which shows understanding.")
+
+    def test_own_words_trailing_comma_coherent_student(self):
+        _blocked(
+            "The explanation is coherent and in their own words, which shows understanding.",
+            audience="student",
+        )
+
+    def test_own_words_trailing_comma_student_response(self):
+        _blocked(
+            "The response is clear and written in the student's own words, with good structure."
+        )
+
+    def test_own_words_trailing_comma_student_response_student(self):
+        _blocked(
+            "The response is clear and written in the student's own words, with good structure.",
+            audience="student",
+        )
+
+    def test_own_words_midsentence_tell(self):
+        _blocked("I can tell this is in your own words.")
+
+    def test_own_words_midsentence_tell_student(self):
+        _blocked("I can tell this is in your own words.", audience="student")
+
+    def test_own_words_midsentence_elaborate(self):
+        _blocked("The student gave an elaborate answer in their own words.")
+
+    def test_own_words_midsentence_elaborate_student(self):
+        _blocked("The student gave an elaborate answer in their own words.", audience="student")
+
+    def test_own_words_trailing_colon(self):
+        _blocked(
+            "Overall the reasoning is coherent and in their own words:"
+            " it goes beyond definitions."
+        )
+
+    def test_own_words_trailing_colon_student(self):
+        _blocked(
+            "Overall the reasoning is coherent and in their own words:"
+            " it goes beyond definitions.",
+            audience="student",
+        )
+
     def test_own_words_declarative_their(self):
         _blocked("The explanation is coherent and in their own words.")
 
@@ -284,6 +353,63 @@ class TestAllowed:
 
     def test_own_words_teaching_explain_imperative(self):
         _allowed("Explain in your own words why we reject the null hypothesis.")
+
+    # New round-2 teaching questions — must be allowed for both audiences
+
+    def test_own_words_teaching_pvalue_definition_instructor(self):
+        # Non-breaking hyphen in p‑value (U+2011)
+        _allowed(
+            "In your own words, how would you explain the meaning of the"
+            " p\u2011value definition you provided?"
+        )
+
+    def test_own_words_teaching_pvalue_definition_student(self):
+        _allowed(
+            "In your own words, how would you explain the meaning of the"
+            " p\u2011value definition you provided?",
+            audience="student",
+        )
+
+    def test_own_words_teaching_point_difference_instructor(self):
+        _allowed(
+            "In your own words, can you walk through how the 4.1\u2011point"
+            " difference might be practically important for students?"
+        )
+
+    def test_own_words_teaching_point_difference_student(self):
+        _allowed(
+            "In your own words, can you walk through how the 4.1\u2011point"
+            " difference might be practically important for students?",
+            audience="student",
+        )
+
+    def test_own_words_teaching_elaborate_instructor(self):
+        _allowed(
+            "Please elaborate in your own words on how you would communicate"
+            " the findings to a non-specialist audience?"
+        )
+
+    def test_own_words_teaching_elaborate_student(self):
+        _allowed(
+            "Please elaborate in your own words on how you would communicate"
+            " the findings to a non-specialist audience?",
+            audience="student",
+        )
+
+    def test_own_words_teaching_null_hypothesis_instructor(self):
+        _allowed("In your own words, what does it mean to reject the null hypothesis?")
+
+    def test_own_words_teaching_null_hypothesis_student(self):
+        _allowed(
+            "In your own words, what does it mean to reject the null hypothesis?",
+            audience="student",
+        )
+
+    def test_own_words_teaching_tell_me_instructor(self):
+        _allowed("Tell me in your own words why the sample size matters.")
+
+    def test_own_words_teaching_tell_me_student(self):
+        _allowed("Tell me in your own words why the sample size matters.", audience="student")
 
     # --- Normal positive feedback that contains no violations ---
 

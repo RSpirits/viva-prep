@@ -147,28 +147,66 @@ _OWN_WORDS_ANY = re.compile(
     re.IGNORECASE,
 )
 
-# Teaching-request forms that make "own words" legitimate.
-# Matches sentences/clauses that explicitly instruct someone to use their own words
-# (imperative verb, "ask … to", or "can you") — these must stay allowed.
+# Teaching-request forms that make an "own words" sentence legitimate.
+#
+# A sentence containing "own words" is a teaching request only when one of:
+#
+#   (a) The sentence STARTS (after optional leading punctuation / "Please") with
+#       a request verb: explain, restate, describe, summarise/summarize, put,
+#       phrase, express, state, say, elaborate, ask, tell me/us,
+#       or "walk me/us through".
+#
+#   (b) The sentence STARTS with "In your own words," (second-person only —
+#       "In their own words," is a vouching form, not a teaching instruction).
+#
+#   (c) The sentence contains "can you / could you / would you" BEFORE the
+#       "own words" phrase (interrogative teaching question).
+#
+# All patterns are anchored to \A (start-of-sentence), because each is applied
+# to individual sentence strings produced by _SENTENCE_SPLIT.  This prevents
+# mid-sentence occurrences of the verbs/phrases from creating false exemptions
+# (e.g. "I can tell this is in your own words." must stay blocked — "tell"
+# appears inside a declarative sentence, not at its start).
+_OWN_WORDS_ANY_PERSON = (
+    r"(?:their|his|her|your|the\s+student[''\u2019]?s?)"
+)
+_OWN_WORDS_PHRASE = rf"\bin\s+{_OWN_WORDS_ANY_PERSON}\s+own\s+words\b"
+
 _OWN_WORDS_TEACHING = re.compile(
-    r"\b(?:explain|restate|describe|summarise|summarize|put|phrase|express|state|say)\b"
-    r".*?\bin\s+(?:their|his|her|your|the\s+student[''\u2019]?s?)\s+own\s+words\b"
-    r"|\bask\b.*?\bin\s+(?:their|his|her|your|the\s+student[''\u2019]?s?)\s+own\s+words\b"
-    r"|\bcan\s+you\b.*?\bin\s+(?:their|his|her|your|the\s+student[''\u2019]?s?)\s+own\s+words\b",
+    # (a) Sentence starts with a request verb (optionally preceded by
+    #     leading open-quote, whitespace, or the word "please").
+    r"\A[\s\"'\u2018\u201c]*(?:please\s+)?"
+    r"(?:explain|restate|describe|summarise|summarize|put|phrase|express|state|say"
+    r"|elaborate|ask|tell\s+(?:me|us)|walk\s+(?:me|us)\s+through)"
+    r"\b.*?" + _OWN_WORDS_PHRASE
+    # (b) Sentence starts with "In your own words," — second person only.
+    + r"|\A[\s\"'\u2018\u201c]*[Ii]n\s+your\s+own\s+words\s*,"
+    # (c) "can you / could you / would you" appears before the "own words" phrase.
+    + r"|\b(?:can|could|would)\s+you\b.*?" + _OWN_WORDS_PHRASE,
     re.IGNORECASE | re.DOTALL,
 )
 
+# Sentence splitter — split on ". ", "? ", "! ", or end-of-string after sentence-ending
+# punctuation.  A simple split is good enough for guardrail purposes.
+_SENTENCE_SPLIT = re.compile(r"(?<=[.?!])\s+")
+
 
 def _authorship_violation(text: str) -> bool:
-    """Return True if the text contains an authorship or AI-use violation."""
+    """Return True if the text contains an authorship or AI-use violation.
+
+    Each sentence that contains an "own words" phrase is evaluated on its own:
+    a teaching sentence cannot excuse a vouching sentence elsewhere in the text.
+    """
     if _AUTHORSHIP_CORE.search(text):
         return True
-    # "own words" check: block unless every occurrence is within a teaching request.
+    # Split into sentences and check each sentence that contains "own words".
     if _OWN_WORDS_ANY.search(text):
-        # If the full text matches a teaching-request form that accounts for
-        # the "own words" phrase, it is allowed; otherwise block.
-        if not _OWN_WORDS_TEACHING.search(text):
-            return True
+        sentences = _SENTENCE_SPLIT.split(text)
+        for sentence in sentences:
+            if _OWN_WORDS_ANY.search(sentence):
+                # This sentence contains "own words"; it must be a teaching form.
+                if not _OWN_WORDS_TEACHING.search(sentence):
+                    return True
     return False
 
 
