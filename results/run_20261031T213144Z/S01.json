@@ -1,0 +1,53 @@
+{
+  "student_id": "S01",
+  "questions": [
+    "Can you walk me through what you meant by \"assuming the null hypothesis is true — that the two methods produce the same average exam score — there would be only a 3% chance\"?",
+    "Could you elaborate on why you concluded \"Because 0.03 is less than the conventional significance level of 0.05, we reject the null hypothesis\"?",
+    "How do you see the relationship between statistical significance and practical significance when you say \"statistical significance is not the same as practical significance\"?",
+    "What do you think are the implications of the sample size when you note \"The study used 40 students per group, which is reasonable but not large\"?",
+    "Can you discuss how the study's setting might limit broader applicability given you wrote \"we cannot automatically generalise to other institutions, subjects, or student demographics\"?"
+  ],
+  "briefing": "Based on the submission only (no practice conversation). The student accurately described the p‑value, stating that “assuming the null hypothesis is true — that the two methods produce the same average exam score — there would be only a 3% chance of observing a difference at least as large as 4.1 points” which meets criterion 1. They correctly linked the p‑value to rejecting H₀ at α = 0.05, saying “Because 0.03 is less than the conventional significance level of 0.05, we reject the null hypothesis,” satisfying criterion 2. Their discussion of statistical versus practical significance (“statistical significance is not the same as practical significance… a 4.1‑point difference … may be modest”) addresses criterion 3. They note sample size and generalisability limits, fulfilling criterion 4. The explanation is coherent and in their own words, meeting criterion 5. A minor gap is the absence of any comment on the t‑test assumptions (normality, equal variances), which could be explored further.",
+  "suggested_questions": [
+    "What assumptions does the independent‑samples t‑test rely on, and how might violations affect the interpretation of the result?",
+    "How would you quantify the practical importance of a 4.1‑point difference, for example by calculating an effect‑size measure such as Cohen's d?"
+  ],
+  "findings": [
+    {
+      "claim": "Student correctly explains the meaning of the p‑value as the probability of observing such a difference if the null hypothesis were true",
+      "evidence_quote": "the p‑value of 0.03 tells us that, assuming the null hypothesis is true … there would be only a 3% chance of observing a difference at least as large as 4.1 points",
+      "rubric_criterion": 1,
+      "confidence": "high"
+    },
+    {
+      "claim": "Student correctly concludes that the null hypothesis should be rejected at α=0.05",
+      "evidence_quote": "Because 0.03 is less than the conventional significance level of 0.05, we reject the null hypothesis",
+      "rubric_criterion": 2,
+      "confidence": "high"
+    },
+    {
+      "claim": "Student distinguishes statistical significance from practical significance",
+      "evidence_quote": "statistical significance is not the same as practical significance… a 4.1‑point difference … may be modest",
+      "rubric_criterion": 3,
+      "confidence": "high"
+    },
+    {
+      "claim": "Student mentions limitations such as sample size and generalisability",
+      "evidence_quote": "The study used 40 students per group… we cannot automatically generalise to other institutions, subjects, or student demographics",
+      "rubric_criterion": 4,
+      "confidence": "high"
+    },
+    {
+      "claim": "Explanation is coherent and in the student's own words",
+      "evidence_quote": "In summary, the result is statistically significant and gives us reason to investigate Method A further…",
+      "rubric_criterion": 5,
+      "confidence": "high"
+    }
+  ],
+  "guardrail": {
+    "allowed": true,
+    "reasons": [],
+    "text": "Based on the submission only (no practice conversation). The student accurately described the p‑value, stating that “assuming the null hypothesis is true — that the two methods produce the same average exam score — there would be only a 3% chance of observing a difference at least as large as 4.1 points” which meets criterion 1. They correctly linked the p‑value to rejecting H₀ at α = 0.05, saying “Because 0.03 is less than the conventional significance level of 0.05, we reject the null hypothesis,” satisfying criterion 2. Their discussion of statistical versus practical significance (“statistical significance is not the same as practical significance… a 4.1‑point difference … may be modest”) addresses criterion 3. They note sample size and generalisability limits, fulfilling criterion 4. The explanation is coherent and in their own words, meeting criterion 5. A minor gap is the absence of any comment on the t‑test assumptions (normality, equal variances), which could be explored further."
+  },
+  "status": "ok"
+}
