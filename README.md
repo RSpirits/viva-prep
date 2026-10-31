@@ -89,6 +89,8 @@ There were two rounds, both with `openai/gpt-oss-120b` on watsonx.ai (`us-south`
 | needs_attention | 0 | 0 |
 | Run folder | `run_20261031T213144Z` | `run_20261031T220129Z` |
 
+The forbidden-output counts and the committed `eval_*.csv` files reflect the guardrail at the time of each run. Re-running `evaluate.py` on round 1 with the current guardrail gives 10 of 18 briefings forbidden (the authorship wording described below); round 2 stays at 0 of 18.
+
 Both rounds pass all four targets. Each round was also read by hand:
 
 - **Round 1** ([`results/round1_review.md`](results/round1_review.md)): 10 of 18 briefings said the work was "in the student's own words", a statement about authorship that the rules forbid. One briefing said the student "meets criterion 1". `check_output` caught neither.
