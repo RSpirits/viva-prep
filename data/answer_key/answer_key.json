@@ -1,0 +1,131 @@
+[
+  {
+    "student_id": "S01",
+    "misconceptions": [],
+    "evidence": ""
+  },
+  {
+    "student_id": "S02",
+    "misconceptions": [
+      "M1"
+    ],
+    "evidence": "a p-value of 0.03 is the chance that the null hypothesis is true"
+  },
+  {
+    "student_id": "S03",
+    "misconceptions": [
+      "M2"
+    ],
+    "evidence": "getting p = 0.03 proves conclusively that the new study method works and that the difference we observed is real"
+  },
+  {
+    "student_id": "S04",
+    "misconceptions": [
+      "M3"
+    ],
+    "evidence": "A result being statistically significant implies the difference is genuinely large and practically important"
+  },
+  {
+    "student_id": "S05",
+    "misconceptions": [
+      "M4"
+    ],
+    "evidence": "A failure to reject the null would mean the two methods are identical in their effects"
+  },
+  {
+    "student_id": "S06",
+    "misconceptions": [
+      "M5"
+    ],
+    "evidence": "(no assumptions or limitations mentioned)"
+  },
+  {
+    "student_id": "S07",
+    "misconceptions": [
+      "M1",
+      "M3"
+    ],
+    "evidence": "the p-value gives you the probability that the null hypothesis itself is true | Being statistically significant is the same as saying the result matters and the effect is meaningfully large"
+  },
+  {
+    "student_id": "S08",
+    "misconceptions": [
+      "M6"
+    ],
+    "evidence": "when a result achieves statistical significance, it means the observed difference is guaranteed to be real and educationally important, because the significance threshold is designed to allow only genuine and substantial effects through"
+  },
+  {
+    "student_id": "S09",
+    "misconceptions": [],
+    "evidence": ""
+  },
+  {
+    "student_id": "S10",
+    "misconceptions": [
+      "M2",
+      "M4"
+    ],
+    "evidence": "Obtaining p = 0.03 proves beyond reasonable doubt that the new method works and is effective | failing to reject the null would prove the two methods are completely identical and interchangeable"
+  },
+  {
+    "student_id": "S11",
+    "misconceptions": [
+      "M1",
+      "M5"
+    ],
+    "evidence": "the p-value is essentially the probability that the null hypothesis is true given the data we observed | (no assumptions or limitations mentioned)"
+  },
+  {
+    "student_id": "S12",
+    "misconceptions": [
+      "M3",
+      "M4"
+    ],
+    "evidence": "A finding being statistically significant is the same as saying the result has a large effect size and is practically meaningful | that result would show the two methods are genuinely the same in effect, not merely statistically indistinguishable"
+  },
+  {
+    "student_id": "S13",
+    "misconceptions": [
+      "M2",
+      "M5"
+    ],
+    "evidence": "a p-value of 0.03 definitively proves that Method A is effective and that the study method genuinely improves student performance | (no assumptions or limitations mentioned)"
+  },
+  {
+    "student_id": "S14",
+    "misconceptions": [
+      "M6",
+      "M5"
+    ],
+    "evidence": "whenever a study achieves p < 0.05, the effect is automatically guaranteed to be educationally meaningful and worth implementing, because the significance threshold is specifically calibrated to let only real and important effects through | (no assumptions or limitations mentioned)"
+  },
+  {
+    "student_id": "S15",
+    "misconceptions": [],
+    "evidence": ""
+  },
+  {
+    "student_id": "S16",
+    "misconceptions": [
+      "M1",
+      "M4"
+    ],
+    "evidence": "the p-value equals the probability that the null hypothesis is actually true | Not rejecting the null would mean the two methods are definitively identical in their effects on student performance"
+  },
+  {
+    "student_id": "S17",
+    "misconceptions": [
+      "M2",
+      "M3"
+    ],
+    "evidence": "a p-value of 0.03 is direct proof that the new study method genuinely improves performance | being statistically significant means the effect is large and matters in the real world"
+  },
+  {
+    "student_id": "S18",
+    "misconceptions": [
+      "M3",
+      "M6"
+    ],
+    "evidence": "saying a result is statistically significant is saying the effect is real and large enough to be practically meaningful | the p-value only reflects the probability of the observed data under a null model and carries absolutely no information about whether the difference is large or worth caring about in the real world"
+  }
+]

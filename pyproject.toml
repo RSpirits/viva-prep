@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "viva-prep"
+version = "0.1.0"
+description = "Multi-agent assistant for instructor viva preparation, built on IBM watsonx Orchestrate."
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["viva_prep*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

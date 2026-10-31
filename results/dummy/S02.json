@@ -1,0 +1,9 @@
+{
+  "student_id": "S02",
+  "questions": [
+    "You wrote 'a p-value of 0.03 is the chance that the null hypothesis is true' \u2014 what does 'chance' mean here?",
+    "You said 'the study only involved 40 students per group' \u2014 how does sample size affect generalisability?",
+    "You noted 'statistical significance and practical significance are separate things' \u2014 can you give an example?"
+  ],
+  "briefing": "The student confuses the p-value with the probability that the null hypothesis is true. They write that a p-value of 0.03 is the chance that the null hypothesis is true, which is misconception M1. The correct interpretation is that p(data|H0) is not p(H0|data). The instructor should probe whether the student understands posterior versus sampling-distribution probability."
+}

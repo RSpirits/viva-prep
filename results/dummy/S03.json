@@ -1,0 +1,9 @@
+{
+  "student_id": "S03",
+  "questions": [
+    "How does pedagogy shape your reading of this result?",
+    "What curriculum changes would you advocate for?",
+    "Which demographic factors might moderate the outcome?"
+  ],
+  "briefing": "The student generally follows the hypothesis-testing procedure and identifies the rejection region at alpha 0.05. They distinguish statistical and practical significance and note that Cohen's d would be useful. No major conceptual gaps were identified in their framing of the null and alternative hypotheses or the decision rule."
+}

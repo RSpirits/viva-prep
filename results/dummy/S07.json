@@ -1,0 +1,9 @@
+{
+  "student_id": "S07",
+  "questions": [
+    "You wrote 'the p-value gives you the probability that the null hypothesis itself is true' \u2014 is that the correct definition?",
+    "You said 'Being statistically significant is the same as saying the result matters and the effect is meaningfully large' \u2014 what does the lecture say about this?",
+    "You noted 'the study was conducted in a single course' \u2014 what type of validity concern does that raise?"
+  ],
+  "briefing": "The student shows familiarity with hypothesis testing vocabulary and correctly identifies that we reject H0 at alpha 0.05. Their discussion of the 4.1-point difference acknowledges that replication is needed. The response is coherent and reasonably well structured. The instructor should explore whether the student understands what failing to reject H0 would and would not imply about the two methods."
+}

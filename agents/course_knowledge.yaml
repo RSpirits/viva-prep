@@ -1,0 +1,26 @@
+spec_version: v1
+kind: knowledge_base
+name: course_knowledge
+description: >
+  Course materials for the viva-preparation system: syllabus, lecture notes,
+  learning objectives, and rubric. Used by question_planner, briefing_writer,
+  class_insights, and coordinator to ground all agent output in authoritative
+  course content.
+
+# Source documents — paths relative to the repository root.
+# Only data/course/ files are included.
+# data/submissions/ is intentionally excluded.
+# The planted-misconception key file is also excluded (evaluation use only).
+documents:
+  - data/course/syllabus.md
+  - data/course/lecture_notes_hypothesis_testing.md
+  - data/course/learning_objectives.md
+  - data/course/rubric.md
+
+# TODO: add chunking_strategy and embedding_model fields once the target
+#        Orchestrate instance and embedding service are confirmed, e.g.:
+#   chunking_strategy:
+#     type: fixed
+#     chunk_size: 512
+#     chunk_overlap: 64
+#   embedding_model: ibm/slate-125m-english-rtrvr

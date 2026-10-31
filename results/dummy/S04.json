@@ -1,0 +1,9 @@
+{
+  "student_id": "S04",
+  "questions": [
+    "You wrote 'A result being statistically significant implies the difference is genuinely large' \u2014 is that always true?",
+    "You claimed 'this 4.1-point advantage for Method A is not just noise' \u2014 what evidence supports that?",
+    "You mentioned 'about 5% of correct null hypotheses would be rejected just by chance' \u2014 what is that called?"
+  ],
+  "briefing": "The student conflates statistical significance with practical importance. They state that a result being statistically significant implies the difference is genuinely large and practically important, which is misconception M3. The instructor should ask whether a tiny difference with a huge sample size would also be practically significant."
+}

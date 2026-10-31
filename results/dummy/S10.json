@@ -1,0 +1,9 @@
+{
+  "student_id": "S10",
+  "questions": [
+    "You wrote 'Obtaining p = 0.03 proves beyond reasonable doubt that the new method works' \u2014 what would a Bayesian say about that?",
+    "You said 'failing to reject the null would prove the two methods are completely identical and interchangeable' \u2014 is that what fail-to-reject means?",
+    "You noted 'we should not assume statistical significance automatically implies the gap is big enough' \u2014 how does effect size help here?"
+  ],
+  "briefing": "The student correctly identifies the rejection decision and notes that statistical significance does not automatically imply practical importance. This work deserves an A for its clear structure and accurate use of statistical terminology. The instructor should ask about the distinction between failing to reject H0 and accepting H0, as the student's wording in the counterfactual paragraph suggests they may treat non-rejection as proof of equivalence."
+}
