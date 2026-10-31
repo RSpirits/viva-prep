@@ -76,7 +76,38 @@ The `watsonx` backend calls the watsonx.ai chat endpoint (`/ml/v1/text/chat`). I
 
 A student whose model call or reply parsing failed is marked `needs_attention`. It fails the first three targets and is reported on its own line.
 
-**Results:** pending the first watsonx.ai run. All runs are kept in `results/`. The numbers from the dummy backend only show that the pipeline works; the dummy replies are deliberately generic.
+### Results
+
+There were two rounds, both with `openai/gpt-oss-120b` on watsonx.ai (`us-south`), temperature 0, all 18 students. Every run is kept in `results/`.
+
+| Target | Round 1 | Round 2 |
+|---|---|---|
+| Questions tied to a specific passage ≥ 90% | 97.4% (75/77) | 92.1% (70/76) |
+| Planted misconception named ≥ 80% | 87.5% (21/24) | 87.5% (21/24) |
+| Every briefing ≤ 250 words | 18/18 (123–178 words) | 18/18 (101–201 words) |
+| Forbidden outputs = 0 | 0 | 0 |
+| needs_attention | 0 | 0 |
+| Run folder | `run_20261031T213144Z` | `run_20261031T220129Z` |
+
+Both rounds pass all four targets. Each round was also read by hand:
+
+- **Round 1** ([`results/round1_review.md`](results/round1_review.md)): 10 of 18 briefings said the work was "in the student's own words", a statement about authorship that the rules forbid. One briefing said the student "meets criterion 1". `check_output` caught neither.
+- **Between rounds** (Bob task 10):
+  - the guardrail was extended to block both kinds of statement;
+  - `briefing_writer`'s instructions were tightened.
+- **Round 2** ([`results/round2_review.md`](results/round2_review.md)):
+  - No briefing makes an authorship statement or says a criterion is met.
+  - Checked with the round-2 guardrail, round 1 has 10 of 18 briefings blocked and round 2 has none.
+- **After round 2** (Bob task 11): a guardrail defect was fixed without a new model run. The new authorship rule had also blocked three questions that asked the student to answer "in your own words".
+
+Problems that remain after round 2 (details in the round 2 review):
+
+- One student question quotes words the student never wrote (S06).
+- Two briefings accept a suggestion to replicate the study as a limitation.
+- 6 of 93 evidence quotes are not word for word.
+- One briefing labels each paragraph with a criterion and a confidence level.
+
+The dummy backend's numbers only show that the pipeline works; its replies are deliberately generic.
 
 ## Importing into watsonx Orchestrate
 
@@ -105,6 +136,10 @@ What the ADK source (version 2.19.1) shows, checked offline against the built pa
 - **Measured on the same 18 synthetic submissions the prompts were tuned on.** The numbers are optimistic for unseen work.
 - **Evaluation measures the "submission only" path.** That path covers all four targets. Full practice conversations are shown in the demo only.
 - **Rule-based checks.** Misconception detection uses quotes and keyword sets, and `check_output` uses patterns. Both can miss a paraphrase or block an unusual but acceptable sentence.
+  - In round 2, S18 names a misconception in words the keyword rule does not match. Read by hand, 22 of 24 misconceptions are named in both rounds; the official count stays 21/24 because the rules were not changed after seeing results.
+- **The "forbidden outputs" target covers briefing text only.** Student questions and findings were checked separately for the reviews. In Orchestrate, each agent runs `check_output` on its own output.
+- **Quotations are not checked against the submission.** No tool compares a quoted phrase with the student's text. This is how the invented quote in S06's question got through.
+- **Two prompt rounds only**, as planned. The problems listed under Results were not fixed.
 - **Synthetic data only**, one course, one assignment, English only.
 
 ## IBM Bob
@@ -122,5 +157,7 @@ The code was built with IBM Bob, one Bob task per step. Each task's screenshot (
 | 07 | agent instruction files and Orchestrate YAML |
 | 08 | batch runner (watsonx.ai / dummy) |
 | 09 | Orchestrate package and import script |
+| 10 | round 2: guardrail rules for authorship and rubric verdicts, briefing writer instructions |
+| 11 | guardrail fix after round 2: allow "in your own words" questions, check each sentence |
 
 Small edits made outside Bob after reviewing its work: in `run_batch.py`, HTTP errors now include an excerpt of the response body, and the request timeout is 180 s (task 08); `build_orchestrate_pkg.py` refuses to delete a folder that is not a previous package, and `import_orchestrate.sh` accepts a `PKG_DIR` override so its tests stay in a temporary folder (task 09); this README was rewritten.

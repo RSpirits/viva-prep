@@ -1,0 +1,16 @@
+{
+  "backend": "watsonx",
+  "model_id": "openai/gpt-oss-120b",
+  "prompt_hashes": {
+    "briefing_writer.md": "5078227370eb9def3a632aa0710002077284568bf0dbfd918c95c50bb21260d8",
+    "class_insights.md": "ba05fcb4ebc1342e71e1d570cb1aabd506d38f673b557426970043405ea32828",
+    "coordinator.md": "543fe8ce55d53ab17111b18052d2e1fe9e007ee4779746eddf5ae4086cd51a16",
+    "practice_partner.md": "2829edc53f3572283018550e27bd32b90332444b22aadb96fa961df5c3a7a2fd",
+    "question_planner.md": "3d6f1dcf9d66739ff3638bf13c83c0939838d4d6ca58c4ebbedaf2660f9546e6"
+  },
+  "start_time": "2026-10-31T22:01:29.154045+00:00",
+  "end_time": "2026-10-31T22:24:20.798158+00:00",
+  "n_students": 18,
+  "n_ok": 18,
+  "n_needs_attention": 0
+}
