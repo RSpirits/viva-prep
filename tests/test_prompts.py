@@ -14,6 +14,8 @@ Test matrix
 6. No file in agents/ (excluding course_knowledge.yaml) contains a
    misconception code M1–M6.
 7. Every prompts/*.md file is under 400 words.
+8. Two additional shared sentences appear verbatim in every prompts/*.md file:
+   the guardrail-before-output sentence and the tool-failure retry sentence.
 """
 
 from __future__ import annotations
@@ -229,4 +231,38 @@ def test_prompts_under_400_words(prompt_file: pathlib.Path) -> None:
     word_count = len(text.split())
     assert word_count < _WORD_LIMIT, (
         f"{prompt_file.name} is {word_count} words — must be under {_WORD_LIMIT}."
+    )
+
+
+# ---------------------------------------------------------------------------
+# Test 8 — two additional shared sentences appear verbatim in every prompts file
+# ---------------------------------------------------------------------------
+
+SHARED_VERBATIM_SENTENCES = [
+    # Guardrail-before-output sentence
+    (
+        'Before any text is shown to a person, call `check_output(text, audience)`. '
+        'If it is blocked, rewrite once and check again. '
+        'If it is still blocked, return `"needs attention"` instead of the text.'
+    ),
+    # Tool-failure retry sentence
+    (
+        'If a tool call fails, retry once. '
+        'If it fails again, return `"needs attention"` and name the tool.'
+    ),
+]
+
+
+@pytest.mark.parametrize("prompt_file", PROMPT_FILES, ids=lambda p: p.name)
+@pytest.mark.parametrize(
+    "sentence",
+    SHARED_VERBATIM_SENTENCES,
+    ids=["guardrail_before_output", "tool_failure_retry"],
+)
+def test_prompts_contain_verbatim_sentences(
+    prompt_file: pathlib.Path, sentence: str
+) -> None:
+    text = _load_text(prompt_file)
+    assert sentence in text, (
+        f"{prompt_file.name} is missing verbatim shared sentence:\n  {sentence!r}"
     )

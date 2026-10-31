@@ -108,6 +108,76 @@ class TestBlocked:
     def test_misconception_code_m6_student(self):
         _blocked("M6 detected in reasoning about effect size.", audience="student")
 
+    # --- Rule 1b: criterion verdict ---
+
+    def test_meets_criterion_1(self):
+        _blocked("The student's explanation meets criterion 1 of the rubric.")
+
+    def test_meeting_criterion_5(self):
+        _blocked("The student is meeting criterion 5 with this answer.")
+
+    def test_satisfying_clarity_criterion(self):
+        _blocked("The response is satisfying the clarity criterion.")
+
+    def test_fulfils_criterion_4(self):
+        _blocked("The conclusion fulfils criterion 4 on limitations.")
+
+    def test_criterion_3_is_met(self):
+        _blocked("criterion 3 is met by the definition provided.")
+
+    def test_criterion_blocked_student(self):
+        _blocked("The answer meets criterion 2.", audience="student")
+
+    # --- Rule 2 (extended): authorship vouching via "own words" ---
+
+    def test_own_words_declarative_their(self):
+        _blocked("The explanation is coherent and in their own words.")
+
+    def test_own_words_declarative_their_student(self):
+        _blocked("The explanation is coherent and in their own words.", audience="student")
+
+    def test_own_words_curly_apostrophe(self):
+        _blocked("The writing is in the student\u2019s own words and shows a clear structure.")
+
+    def test_own_words_curly_apostrophe_student(self):
+        _blocked(
+            "The writing is in the student\u2019s own words and shows a clear structure.",
+            audience="student",
+        )
+
+    def test_own_words_straight_apostrophe(self):
+        _blocked("The response is coherent and largely in the student's own words.")
+
+    def test_own_words_straight_apostrophe_student(self):
+        _blocked(
+            "The response is coherent and largely in the student's own words.",
+            audience="student",
+        )
+
+    def test_own_words_uses_own_words(self):
+        _blocked("The rest of the explanation is coherent and uses own words.")
+
+    def test_own_words_uses_own_words_student(self):
+        _blocked(
+            "The rest of the explanation is coherent and uses own words.",
+            audience="student",
+        )
+
+    def test_own_words_using_their_own_words(self):
+        _blocked("The reasoning is not fully coherent despite using their own words.")
+
+    def test_own_words_using_their_own_words_student(self):
+        _blocked(
+            "The reasoning is not fully coherent despite using their own words.",
+            audience="student",
+        )
+
+    def test_own_work_declarative(self):
+        _blocked("This is their own work.")
+
+    def test_own_work_declarative_student(self):
+        _blocked("This is their own work.", audience="student")
+
 
 # ===========================================================================
 # ALLOWED cases (12 minimum)
@@ -192,6 +262,28 @@ class TestAllowed:
 
     def test_passed_over(self):
         _allowed("The student passed over the question of practical significance.")
+
+    # --- Rule 1b: criterion references that must stay allowed ---
+
+    def test_criterion_relates_to(self):
+        _allowed("this relates to criterion 3 of the rubric.")
+
+    def test_criterion_asks_for(self):
+        _allowed("Criterion 4 asks for limitations of the study.")
+
+    def test_criterion_under_framing(self):
+        _allowed("under criterion 1 the student defines the p-value correctly.")
+
+    # --- Rule 2 (extended): teaching "own words" requests must stay allowed ---
+
+    def test_own_words_teaching_can_you(self):
+        _allowed("Can you explain, in your own words, what the p-value of 0.03 means?")
+
+    def test_own_words_teaching_ask_student(self):
+        _allowed("Ask the student to restate the definition in their own words.")
+
+    def test_own_words_teaching_explain_imperative(self):
+        _allowed("Explain in your own words why we reject the null hypothesis.")
 
     # --- Normal positive feedback that contains no violations ---
 

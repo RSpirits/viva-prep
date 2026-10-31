@@ -16,11 +16,12 @@ except ImportError:
 # Rule patterns
 # ---------------------------------------------------------------------------
 
-# Rule 1 – grade / score / mark
+# Rule 1 – grade / score / mark / criterion verdict
 #
 # Matches explicit grade labels ("grade: B+", "mark: A-"), numeric score
 # fractions ("7/10", "18/20"), percentage scores that refer to the student's
-# mark or performance, and pass/fail verdicts on the student or their work.
+# mark or performance, pass/fail verdicts on the student or their work, and
+# statements that a rubric criterion is met.
 #
 # Deliberately does NOT match:
 #   "p-value of 0.03"               – no % sign
@@ -33,6 +34,9 @@ except ImportError:
 #   "Assignment 4"                  – digit not in a fraction context
 #   "failed to mention"             – "failed to <verb>" is not a verdict
 #   "passed over"                   – idiomatic phrase, not a verdict
+#   "this relates to criterion 3"   – referential, not a verdict
+#   "Criterion 4 asks for …"        – descriptive, not a verdict
+#   "under criterion 1 the student" – framing, not a verdict
 
 # Explicit "grade: X" / "mark: X" / "deserves an A" patterns.
 # The word-boundary \b after the grade letter ensures "grade consistently"
@@ -90,19 +94,86 @@ _PASS_FAIL = re.compile(
     re.IGNORECASE,
 )
 
+# Rule 1b – criterion verdict
+#
+# Blocks statements that a rubric criterion is met/satisfied/fulfilled.
+# Allowed: "this relates to criterion 3", "Criterion 4 asks for …",
+#          "under criterion 1 the student defines the p-value"
+_CRITERION_MET = re.compile(
+    # "meets/meeting/met criterion N"
+    r"\b(?:meets?|meeting|met)\s+criterion\s+\d"
+    # "satisfying/satisfies/satisfy the ... criterion" or "satisfying criterion N"
+    r"|\bsatisfy?i(?:ng|es?)\s+(?:the\s+\w+\s+)?criterion\b"
+    # "fulfils/fulfills/fulfilling criterion N"
+    r"|\bfulfil(?:ls?|s|led|ling)\s+criterion\s+\d"
+    # "criterion N is met"
+    r"|\bcriterion\s+\d\s+is\s+met\b",
+    re.IGNORECASE,
+)
+
 # Rule 2 – authorship / AI-use judgment
 #
 # Flags any claim that the work was AI-generated, plagiarised, or not the
 # student's own — while leaving normal teaching language untouched.
-_AUTHORSHIP = re.compile(
+#
+# Also blocks vouching for authorship via "own words" language:
+#   Blocked: "in their own words", "in the student's own words",
+#            "uses own words", "using own words", "this is their own work"
+#   Allowed: "explain in your own words", "restate … in their own words"
+#            "ask the student to … in their own words"  (teaching requests)
+#
+# Because Python's re module does not support variable-width lookbehinds,
+# the own-words check uses a two-step approach: (a) a broad pattern detects
+# any "own words" phrase, then (b) a separate allowlist pattern checks whether
+# the match sits inside a teaching request — if so, it is exempt.
+_AUTHORSHIP_CORE = re.compile(
     r"\bwritten\s+by\s+(?:an?\s+)?ai\b"
     r"|\bused?\s+(?:chat\s*gpt|gpt[-\s]?\d|llm|an?\s+ai\b)"
     r"|\bnot\s+(?:their|his|her|the\s+student['']?s?)\s+own\s+work\b"
     r"|\bplagiar\w*"
     r"|\blikely\s+(?:ai[-\s]?)?generated\b"
-    r"|\bai[-\s]generated\b",
+    r"|\bai[-\s]generated\b"
+    r"|\bthis\s+is\s+their\s+own\s+work\b",
     re.IGNORECASE,
 )
+
+# Broad "own words" detector — matches any sentence containing the phrase.
+# Handles:
+#   "in their/his/her/your/the student's own words"
+#   "using/uses own words" or "using their own words" (1–2 word prefix before "own")
+_OWN_WORDS_ANY = re.compile(
+    r"\bin\s+(?:their|his|her|your|the\s+student[''\u2019]?s?)\s+own\s+words\b"
+    r"|\b(?:uses?|using)\s+(?:\w+\s+)?own\s+words\b",
+    re.IGNORECASE,
+)
+
+# Teaching-request forms that make "own words" legitimate.
+# Matches sentences/clauses that explicitly instruct someone to use their own words
+# (imperative verb, "ask … to", or "can you") — these must stay allowed.
+_OWN_WORDS_TEACHING = re.compile(
+    r"\b(?:explain|restate|describe|summarise|summarize|put|phrase|express|state|say)\b"
+    r".*?\bin\s+(?:their|his|her|your|the\s+student[''\u2019]?s?)\s+own\s+words\b"
+    r"|\bask\b.*?\bin\s+(?:their|his|her|your|the\s+student[''\u2019]?s?)\s+own\s+words\b"
+    r"|\bcan\s+you\b.*?\bin\s+(?:their|his|her|your|the\s+student[''\u2019]?s?)\s+own\s+words\b",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def _authorship_violation(text: str) -> bool:
+    """Return True if the text contains an authorship or AI-use violation."""
+    if _AUTHORSHIP_CORE.search(text):
+        return True
+    # "own words" check: block unless every occurrence is within a teaching request.
+    if _OWN_WORDS_ANY.search(text):
+        # If the full text matches a teaching-request form that accounts for
+        # the "own words" phrase, it is allowed; otherwise block.
+        if not _OWN_WORDS_TEACHING.search(text):
+            return True
+    return False
+
+
+# Keep a single name for the module-level pattern (used in the tool function).
+_AUTHORSHIP = _AUTHORSHIP_CORE  # kept for backwards-compat; full check via _authorship_violation
 
 # Rule 3 – instructor-only material (student audience only)
 #
@@ -155,7 +226,10 @@ def check_output(text: str, audience: str) -> dict:
     if _PASS_FAIL.search(text):
         reasons.append("Contains a pass/fail verdict on the student.")
 
-    if _AUTHORSHIP.search(text):
+    if _CRITERION_MET.search(text):
+        reasons.append("Contains a statement that a rubric criterion is met.")
+
+    if _authorship_violation(text):
         reasons.append("Contains a judgment about authorship or AI use.")
 
     if audience == "student" and _INSTRUCTOR_ONLY.search(text):
