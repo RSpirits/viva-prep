@@ -83,18 +83,18 @@ A student whose model call or reply parsing failed is marked `needs_attention`. 
 Install the ADK (`pip install ibm-watsonx-orchestrate`, Python 3.11+; checked with version 2.19.1). In Orchestrate, open Settings → API details, copy the service instance URL and generate an API key. Then connect the CLI; it asks for the key at a prompt. Never put the key in a file or in a chat.
 
 ```bash
-orchestrate env add -n viva-prep -u <service instance URL> --activate
+orchestrate env add -n viva-prep -u <service instance URL> --type ibm_iam --activate
 DRY_RUN=1 bash scripts/import_orchestrate.sh   # prints the commands only
 bash scripts/import_orchestrate.sh
 ```
 
-The CLI infers the authentication type from the URL; `--type ibm_iam` is only needed if it guesses wrong.
+`ibm_iam` is the authentication type for an IBM Cloud instance. The CLI would also infer it from a URL that contains `.cloud.ibm.com`.
 
 The script builds `build/orchestrate_pkg/`. The package contains only `viva_prep/`, the course documents, the submissions, the agent files and a `.txt` copy of each course document, because ADK knowledge bases do not accept `.md`. It then imports the three tool files, the `course_knowledge` knowledge base, the four specialist agents and, last, `coordinator`. The answer key is never part of the package; a test checks this.
 
 What the ADK source (version 2.19.1) shows, checked offline against the built package:
 
-- The ADK's own loaders read all three tool files (7 tools), the knowledge-base file and all five agent files without errors. Every tool, collaborator and knowledge base an agent names exists in the package.
+- The ADK's own loaders read all three tool files (7 tools) and the knowledge-base file without errors. The five agent files load once an `llm` field is added (see the last point; the offline check added it to temporary copies). Every tool, collaborator and knowledge base an agent names exists in the package.
 - Document paths in a knowledge-base file resolve against that file's folder.
 - An agent import stops if a tool, knowledge base or collaborator it names does not exist yet in the instance. The script imports them in that order, with `coordinator` last.
 - The agent files have no `llm` field, so Orchestrate uses the instance's default model. If the instance has no default model, the import stops and asks for an `llm` field.
