@@ -63,7 +63,7 @@ python scripts/run_batch.py --backend watsonx --limit 2
 python scripts/evaluate.py results/<run folder>
 ```
 
-The `watsonx` backend calls the watsonx.ai chat endpoint (`/ml/v1/text/chat`). It reads `WATSONX_APIKEY`, `WATSONX_PROJECT_ID`, `WATSONX_URL` and `WATSONX_MODEL_ID` from the environment or from a local `.env` file, which is git-ignored; `.env.example` shows the format. The key and the token are never printed or written. The model is `openai/gpt-oss-120b`, the same model the Orchestrate agents use; it is listed as available for chat in the Dallas region (`us-south`).
+The `watsonx` backend calls the watsonx.ai chat endpoint (`/ml/v1/text/chat`). It reads `WATSONX_APIKEY`, `WATSONX_PROJECT_ID`, `WATSONX_URL` and `WATSONX_MODEL_ID` from the environment or from a local `.env` file, which is git-ignored; `.env.example` shows the format. The key and the token are never printed or written. The model is `openai/gpt-oss-120b`, listed as available for chat in the Dallas region (`us-south`). The Orchestrate agents use the same model id, but served through Groq (see "First run in Orchestrate").
 
 `scripts/evaluate.py` checks four targets:
 
@@ -132,16 +132,52 @@ What the ADK source (version 2.19.1) shows, checked offline against the built pa
 - An agent import stops if a tool, knowledge base or collaborator it names does not exist yet in the instance. The script imports them in that order, with `coordinator` last.
 - The agent files have no `llm` field, so Orchestrate uses the instance's default model. If the instance has no default model, the import stops and asks for an `llm` field.
 
+### First run in Orchestrate
+
+The import ran on the first attempt: 7 tools, the knowledge base and 5 agents. The agents use the instance's default model, `groq/openai/gpt-oss-120b`: the same model id as the batch runs, served through Groq instead of watsonx.ai. Orchestrate's sampling settings (for example the temperature) were not checked.
+
+**Spot-check.** `question_planner` and `briefing_writer` were called directly through the ADK run API for three students: S01 (no planted misconception), S02 (one) and S10 (two). The results were scored with the same `evaluate.py` and are in `results/orchestrate_spotcheck/`. Three students are a spot-check, not a measurement, so these numbers are kept apart from the batch rounds.
+
+| Target | Orchestrate, 3 students |
+|---|---|
+| Questions tied to a specific passage | 11/11 |
+| Planted misconception named | 1/3 (rule-based) |
+| Briefings ≤ 250 words | 3/3 (145–164 words) |
+| Forbidden outputs | 0 |
+| needs_attention | 0 |
+
+- Read by hand, 2 of the 3 misconceptions are named:
+  - S02's briefing says the student treats the p-value as "how likely it is that the null hypothesis is correct". The M1 keyword rule ("probability", "null", "true") does not match this wording.
+  - S10's briefing names M2 ("proves beyond reasonable doubt") but not M4, the claim that failing to reject the null would prove the two methods identical.
+  - In both batch rounds, all three were named.
+- Every quotation in the three briefings and their findings appears word for word in the submission (a quotation with "..." was checked piece by piece).
+- In every call, `save_record` was called once and returned `"saved": false` with the note. No agent retried or returned "needs attention".
+
+**Coordinator path.** One thread with `coordinator`, saved in `results/orchestrate_spotcheck/coordinator_S01.json`:
+
+1. Start a round for S01 only.
+2. Approve the question plan.
+3. Ask for the briefing.
+
+The coordinator called `list_submissions`, `get_round_status`, `question_planner`, `save_record` and `briefing_writer`, and ran `check_output` before each reply. Two problems:
+
+- After the approval it told the instructor the plan was "approved and recorded", although `save_record` had returned `"saved": false`.
+- When showing the briefing, it also listed the findings, each labelled with a rubric criterion and a confidence level. One label was the title of rubric criterion 5, "Clear reasoning in own words", placed next to a quote from the student. This is the same rubric wording that round 1's briefings turned into statements about authorship. `check_output` let it through:
+  - its authorship rule needs a word such as "their" before "own words";
+  - findings are not part of the batch "forbidden outputs" count.
+
+Neither problem was fixed.
+
 ## Known limitations
 
-- **Records are not saved in Orchestrate.** Python tools in Orchestrate run on a read-only file system (confirmed in the first Orchestrate run). `save_record` then returns the record with `"saved": false`, `"reason": "store_not_writable"` and a note that this is expected and not a failed tool call. Without the note, the agents treated the unsaved record as a failed call, retried once and returned "needs attention". The demo therefore runs in a single conversation, with the approved questions passed in that conversation. Practice Partner's separation from briefings then rests only on its instructions, no longer on which tools it can reach.
+- **Records are not saved in Orchestrate.** Python tools in Orchestrate run on a read-only file system (confirmed in the first Orchestrate run). `save_record` then returns the record with `"saved": false`, `"reason": "store_not_writable"` and a note that this is expected and not a failed tool call. Without the note, the agents treated the unsaved record as a failed call, retried once and returned "needs attention". The demo therefore runs in a single conversation, with the approved questions passed in that conversation. Practice Partner's separation from briefings then rests only on its instructions, no longer on which tools it can reach. In the first Orchestrate run, the coordinator still told the instructor that an approved plan was "recorded".
 - **Measured on the same 18 synthetic submissions the prompts were tuned on.** The numbers are optimistic for unseen work.
 - **Evaluation measures the "submission only" path.** That path covers all four targets. Full practice conversations are shown in the demo only.
 - **Rule-based checks.** Misconception detection uses quotes and keyword sets, and `check_output` uses patterns. Both can miss a paraphrase or block an unusual but acceptable sentence.
   - In round 2, S18 names a misconception in words the keyword rule does not match. Read by hand, 22 of 24 misconceptions are named in both rounds; the official count stays 21/24 because the rules were not changed after seeing results.
-- **The "forbidden outputs" target covers briefing text only.** Student questions and findings were checked separately for the reviews. In Orchestrate, each agent runs `check_output` on its own output.
+- **The "forbidden outputs" target covers briefing text only.** Student questions and findings were checked separately for the reviews. In Orchestrate, each agent runs `check_output` on its own output. The coordinator also shows findings to the instructor, and one finding label ("Clear reasoning in own words") passed `check_output` in the first Orchestrate run.
 - **Quotations are not checked against the submission.** No tool compares a quoted phrase with the student's text. This is how the invented quote in S06's question got through.
-- **Two prompt rounds only**, as planned. The problems listed under Results were not fixed.
+- **Two prompt rounds only**, as planned. The problems listed under Results and found in the first Orchestrate run were not fixed.
 - **Synthetic data only**, one course, one assignment, English only.
 
 ## IBM Bob
