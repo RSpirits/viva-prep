@@ -8,9 +8,9 @@ The project was built for the IBM SkillsBuild AI Experiential Learning Lab (Brin
 
 | Agent | Talks to | Job |
 |---|---|---|
-| `coordinator` | instructor | Opens a round, asks `question_planner` for each student's questions, collects the instructor's approval or edits, asks `briefing_writer` and `class_insights` when needed. Never talks to students. |
+| `coordinator` | instructor | Opens a round, asks `question_planner` for each student's questions, collects the instructor's approval or edits, asks `briefing_writer` and `class_insights` when needed. When the instructor asks for a practice session, hands `practice_partner` the approved question texts only. Never talks to students. |
 | `question_planner` | (internal) | Writes 3–5 open questions per student. Each question quotes at least 6 consecutive words of the student's own submission. |
-| `practice_partner` | student | Asks the approved questions one at a time, with at most 2 follow-ups per question. Never says whether an answer is right, never teaches the answer. It can only reach the approved questions (`get_approved_questions`), not briefings or notes. |
+| `practice_partner` | student | Asks the approved questions one at a time, with at most 2 follow-ups per question. Never says whether an answer is right, never teaches the answer. It can only reach the approved questions (`get_approved_questions`), not briefings or notes. Where records are not saved (Orchestrate), it uses the approved questions given at the start of the session. |
 | `briefing_writer` | instructor | Writes a briefing of at most 250 words: what the student explained well, where the explanation broke down (quoting the student), and two suggested questions. Low-confidence points are phrased as "not sure — ask directly". |
 | `class_insights` | instructor | Summarises the most common gaps across the round in at most 300 words, using student IDs only. |
 
@@ -168,16 +168,32 @@ The coordinator called `list_submissions`, `get_round_status`, `question_planner
 
 Neither problem was fixed.
 
+**Practice session.** The first Orchestrate run showed that `practice_partner` could not start: `get_approved_questions` finds no approved plan because nothing is saved, and the agent then stopped as instructed, even when the approved questions were given in the first message. Bob task 14 applied the fallback the project plan had set for this case:
+
+- `practice_partner` uses the instructor-approved questions from the session-start message when `get_approved_questions` finds none;
+- `practice_partner` is a collaborator of `coordinator`, which hands it the approved question texts only, and only when the instructor asks for a practice session.
+
+Only the `coordinator` and `practice_partner` instructions changed. Neither agent is part of the batch evaluation. The three files the batch uses (`question_planner`, `briefing_writer`, `class_insights`) are unchanged, so their hashes in the round 2 `run_meta.json` still match.
+
+Both ways of starting a session were then tried once:
+
+| Route | File in `results/orchestrate_spotcheck/` | What happened |
+|---|---|---|
+| Coordinator thread: round for S02, approval, practice session, two student answers | `coordinator_practice_S02.json` | The coordinator passed `practice_partner` the student ID and the three approved questions, nothing else. The student's answers were routed to `practice_partner`, which asked question 1 and followed up twice on vague answers. It did not run `check_output` on its messages. |
+| Direct chat with `practice_partner`, approved questions pasted in the first message, two student answers | `practice_direct_S01.json` | It asked question 1, followed up once on a vague answer and moved to question 2 after a clear one. It ran `check_output` on every message, but did not call `get_approved_questions` first. One reply repeated the same question twice. |
+
+In neither run did `practice_partner` say whether an answer was right.
+
 ## Known limitations
 
-- **Records are not saved in Orchestrate.** Python tools in Orchestrate run on a read-only file system (confirmed in the first Orchestrate run). `save_record` then returns the record with `"saved": false`, `"reason": "store_not_writable"` and a note that this is expected and not a failed tool call. Without the note, the agents treated the unsaved record as a failed call, retried once and returned "needs attention". The demo therefore runs in a single conversation, with the approved questions passed in that conversation. Practice Partner's separation from briefings then rests only on its instructions, no longer on which tools it can reach. In the first Orchestrate run, the coordinator still told the instructor that an approved plan was "recorded".
+- **Records are not saved in Orchestrate.** Python tools in Orchestrate run on a read-only file system (confirmed in the first Orchestrate run). `save_record` then returns the record with `"saved": false`, `"reason": "store_not_writable"` and a note that this is expected and not a failed tool call. Without the note, the agents treated the unsaved record as a failed call, retried once and returned "needs attention". Practice sessions therefore start from questions passed in the conversation: the coordinator hands them to `practice_partner`, or they are pasted at the start of a direct chat (Bob task 14). Practice Partner's separation from briefings then rests only on instructions, no longer on which tools it can reach, and a student in a direct chat could supply their own questions. Whether `practice_partner` sees earlier messages of the coordinator's conversation was not checked, so in the demo the practice session comes before any briefing is shown. In the first Orchestrate run, the coordinator still told the instructor that an approved plan was "recorded".
 - **Measured on the same 18 synthetic submissions the prompts were tuned on.** The numbers are optimistic for unseen work.
 - **Evaluation measures the "submission only" path.** That path covers all four targets. Full practice conversations are shown in the demo only.
 - **Rule-based checks.** Misconception detection uses quotes and keyword sets, and `check_output` uses patterns. Both can miss a paraphrase or block an unusual but acceptable sentence.
   - In round 2, S18 names a misconception in words the keyword rule does not match. Read by hand, 22 of 24 misconceptions are named in both rounds; the official count stays 21/24 because the rules were not changed after seeing results.
 - **The "forbidden outputs" target covers briefing text only.** Student questions and findings were checked separately for the reviews. In Orchestrate, each agent runs `check_output` on its own output. The coordinator also shows findings to the instructor, and one finding label ("Clear reasoning in own words") passed `check_output` in the first Orchestrate run.
 - **Quotations are not checked against the submission.** No tool compares a quoted phrase with the student's text. This is how the invented quote in S06's question got through.
-- **Two prompt rounds only**, as planned. The problems listed under Results and found in the first Orchestrate run were not fixed.
+- **Two prompt rounds only**, as planned. The problems listed under Results and found in the first Orchestrate run were not fixed. The one later instruction change (Bob task 14) was the planned fallback for unsaved records and touched only `coordinator` and `practice_partner`, which the batch does not run.
 - **Synthetic data only**, one course, one assignment, English only.
 
 ## IBM Bob
@@ -199,5 +215,6 @@ The code was built with IBM Bob, one Bob task per step. Each task's screenshot (
 | 11 | guardrail fix after round 2: allow "in your own words" questions, check each sentence |
 | 12 | Orchestrate: `save_record` returns the unsaved record with `"saved": false` instead of an error |
 | 13 | Orchestrate: add a note to that result so agents do not treat it as a failed call |
+| 14 | Orchestrate: practice sessions without saved records (`practice_partner` uses questions passed at session start; `coordinator` hands them over) |
 
 Small edits made outside Bob after reviewing its work: in `run_batch.py`, HTTP errors now include an excerpt of the response body, and the request timeout is 180 s (task 08); `build_orchestrate_pkg.py` refuses to delete a folder that is not a previous package, and `import_orchestrate.sh` accepts a `PKG_DIR` override so its tests stay in a temporary folder (task 09); this README was rewritten.

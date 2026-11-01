@@ -1,0 +1,51 @@
+{
+  "source": "watsonx Orchestrate, coordinator thread: round start, approval, then a practice session handed to practice_partner (ADK run API)",
+  "turns": [
+    {
+      "user": "Start a new viva round. For this demo, plan questions only for student S02.",
+      "agent": "**Question Plan for S02**\n\n1. Can you walk me through what you meant by “this number represents how likely it is that the null hypothesis is correct” and how that relates to the definition of a p‑value?  \n2. Could you elaborate on why the “4.1‑point bump may not actually change how much students learn” might affect the interpretation of practical significance?  \n3. What are the implications of “the study only involved 40 students per group” for the study’s assumptions and generalisability?  \n\nPlease let me know whether to **approve**, **edit**, or **skip** this plan for S02.",
+      "tool_calls": [
+        "list_submissions",
+        "get_round_status",
+        "chat_with_collaborator_question_planner",
+        "get_submission",
+        "check_output",
+        "save_record"
+      ],
+      "seconds": 12.4
+    },
+    {
+      "user": "Approve S02's questions as they are.",
+      "agent": "The question plan for **S02** has been approved and recorded. Let me know if you need anything else (e.g., a briefing, class insights, or a practice session).",
+      "tool_calls": [
+        "save_record"
+      ],
+      "seconds": 6.8
+    },
+    {
+      "user": "Start a practice session for S02. From the next message on, I am the student.",
+      "agent": "Hi! Let's start with the first question.\n\n**1. Can you walk me through what you meant by “this number represents how likely it is that the null hypothesis is correct” and how it relates to the definition of a p‑value?**",
+      "tool_calls": [
+        "chat_with_collaborator_practice_partner",
+        "get_approved_questions"
+      ],
+      "seconds": 6.6
+    },
+    {
+      "user": "I think the p-value of 0.03 means there is a 3% chance that the null hypothesis is true.",
+      "agent": "Got it. Could you explain how you arrived at that interpretation of the p‑value and how it connects to the formal definition of a p‑value?",
+      "tool_calls": [
+        "chat_with_collaborator_practice_partner"
+      ],
+      "seconds": 3.9
+    },
+    {
+      "user": "Hmm, I'm not sure. Maybe that the two teaching methods are probably different?",
+      "agent": "Thanks for sharing. Could you describe what the p‑value is comparing in the context of the two teaching methods and what a value of 0.03 would imply about that comparison?",
+      "tool_calls": [
+        "chat_with_collaborator_practice_partner"
+      ],
+      "seconds": 6.6
+    }
+  ]
+}
