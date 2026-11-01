@@ -97,10 +97,14 @@ def save_record(student_id: str, kind: str, content: str) -> dict:
     Returns:
         The saved record dict with keys ``student_id``, ``kind``,
         ``content``, ``version`` (1-based, incrementing per student+kind),
-        and ``saved_at`` (UTC ISO-8601).
+        ``saved_at`` (UTC ISO-8601), and ``saved`` (bool).
+        When the write succeeds, ``saved`` is ``True`` and there is no
+        ``"note"`` key.
+        When the store cannot be written (e.g. a read-only file system),
+        ``saved`` is ``False``, ``reason`` is ``"store_not_writable"``, and
+        ``note`` is set to explain that this is expected and not a failed tool
+        call; there is no ``"error"`` key in this case so agents can continue.
         Returns ``{"error": "unknown_kind"}`` for an unrecognised kind.
-        Returns ``{"error": "store_not_writable"}`` when the store file
-        cannot be written (e.g. a read-only file system).
     """
     if kind not in VALID_KINDS:
         return {"error": "unknown_kind"}
@@ -122,8 +126,17 @@ def save_record(student_id: str, kind: str, content: str) -> dict:
     }
     records.append(record)
     if not _save_records(records):
-        return {"error": "store_not_writable"}
-    return record
+        return {
+            **record,
+            "saved": False,
+            "reason": "store_not_writable",
+            "note": (
+                "This environment cannot store records. This is expected and"
+                " is not a failed tool call: do not retry, and continue with"
+                " your task."
+            ),
+        }
+    return {**record, "saved": True}
 
 
 @tool

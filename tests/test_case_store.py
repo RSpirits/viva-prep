@@ -38,7 +38,15 @@ def isolated_store(tmp_path, monkeypatch):
 class TestSaveAndGet:
     def test_save_returns_record_with_expected_keys(self):
         record = save_record("S01", "transcript", "Hello world")
-        assert set(record.keys()) == {"student_id", "kind", "content", "version", "saved_at"}
+        assert set(record.keys()) == {"student_id", "kind", "content", "version", "saved_at", "saved"}
+
+    def test_successful_save_has_saved_true(self):
+        record = save_record("S01", "transcript", "Hello world")
+        assert record["saved"] is True
+
+    def test_successful_save_has_no_note_key(self):
+        record = save_record("S01", "transcript", "Hello world")
+        assert "note" not in record
 
     def test_save_echoes_input_fields(self):
         record = save_record("S02", "briefing", "Some briefing text")
@@ -313,9 +321,31 @@ class TestReadOnlyStore:
         # Restore write permission so tmp_path cleanup succeeds.
         readonly_dir.chmod(0o755)
 
-    def test_save_record_returns_error_dict_not_writable(self, readonly_store):
+    def test_save_record_readonly_has_no_error_key(self, readonly_store):
         result = save_record("S01", "transcript", "hello")
-        assert result == {"error": "store_not_writable"}
+        assert "error" not in result
+
+    def test_save_record_readonly_saved_is_false(self, readonly_store):
+        result = save_record("S01", "transcript", "hello")
+        assert result["saved"] is False
+
+    def test_save_record_readonly_reason_is_store_not_writable(self, readonly_store):
+        result = save_record("S01", "transcript", "hello")
+        assert result["reason"] == "store_not_writable"
+
+    def test_save_record_readonly_note_has_expected_text(self, readonly_store):
+        result = save_record("S01", "transcript", "hello")
+        assert result["note"] == (
+            "This environment cannot store records. This is expected and"
+            " is not a failed tool call: do not retry, and continue with"
+            " your task."
+        )
+
+    def test_save_record_readonly_returns_student_id_kind_content(self, readonly_store):
+        result = save_record("S01", "transcript", "hello")
+        assert result["student_id"] == "S01"
+        assert result["kind"] == "transcript"
+        assert result["content"] == "hello"
 
     def test_save_record_does_not_raise(self, readonly_store):
         # Must never raise — Orchestrate tools must always return a value.

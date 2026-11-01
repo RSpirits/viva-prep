@@ -134,7 +134,7 @@ What the ADK source (version 2.19.1) shows, checked offline against the built pa
 
 ## Known limitations
 
-- **Records may not persist in Orchestrate.** According to the ADK documentation, Python tools in Orchestrate run on a read-only file system. In that case `save_record` returns `{"error": "store_not_writable"}` instead of failing. The fallback is to run the demo in a single conversation, with the approved questions passed in that conversation. Practice Partner's separation from briefings then rests only on its instructions, no longer on which tools it can reach.
+- **Records are not saved in Orchestrate.** Python tools in Orchestrate run on a read-only file system (confirmed in the first Orchestrate run). `save_record` then returns the record with `"saved": false`, `"reason": "store_not_writable"` and a note that this is expected and not a failed tool call. Without the note, the agents treated the unsaved record as a failed call, retried once and returned "needs attention". The demo therefore runs in a single conversation, with the approved questions passed in that conversation. Practice Partner's separation from briefings then rests only on its instructions, no longer on which tools it can reach.
 - **Measured on the same 18 synthetic submissions the prompts were tuned on.** The numbers are optimistic for unseen work.
 - **Evaluation measures the "submission only" path.** That path covers all four targets. Full practice conversations are shown in the demo only.
 - **Rule-based checks.** Misconception detection uses quotes and keyword sets, and `check_output` uses patterns. Both can miss a paraphrase or block an unusual but acceptable sentence.
@@ -161,5 +161,7 @@ The code was built with IBM Bob, one Bob task per step. Each task's screenshot (
 | 09 | Orchestrate package and import script |
 | 10 | round 2: guardrail rules for authorship and rubric verdicts, briefing writer instructions |
 | 11 | guardrail fix after round 2: allow "in your own words" questions, check each sentence |
+| 12 | Orchestrate: `save_record` returns the unsaved record with `"saved": false` instead of an error |
+| 13 | Orchestrate: add a note to that result so agents do not treat it as a failed call |
 
 Small edits made outside Bob after reviewing its work: in `run_batch.py`, HTTP errors now include an excerpt of the response body, and the request timeout is 180 s (task 08); `build_orchestrate_pkg.py` refuses to delete a folder that is not a previous package, and `import_orchestrate.sh` accepts a `PKG_DIR` override so its tests stay in a temporary folder (task 09); this README was rewritten.
