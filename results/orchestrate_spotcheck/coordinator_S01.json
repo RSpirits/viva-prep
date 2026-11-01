@@ -1,0 +1,21 @@
+{
+  "student_id": "S01",
+  "source": "watsonx Orchestrate, coordinator agent, one thread (ADK run API)",
+  "turns": [
+    {
+      "instructor": "Start a new viva round. For this demo, plan questions only for student S01.",
+      "coordinator": "**S01 Question Plan**  \n1. Can you walk me through what you meant by “there would be only a 3% chance of observing a difference” in the context of the null hypothesis?  \n2. Could you elaborate on how you interpret “statistical significance just tells us the difference probably did not arise from sampling variation alone” regarding practical importance?  \n3. What additional insights can you provide about “we cannot automatically generalise to other institutions” and how it limits the study's conclusions?  \n4. How do you see the statement “the result is statistically significant and gives us reason to investigate Method A further” influencing potential next steps?  \n\nPlease let me know whether to approve, edit, or skip this plan for S01.",
+      "seconds": 17.8
+    },
+    {
+      "instructor": "Approve S01's questions as they are.",
+      "coordinator": "The question plan for **S01** has been approved and recorded. Let me know if you need a briefing for this student or any class‑level insights.",
+      "seconds": 5.9
+    },
+    {
+      "instructor": "Show me the briefing for S01.",
+      "coordinator": "**S01 Briefing**\n\n*What the student explained well*  \n- Correct meaning of the p‑value: “The p‑value of 0.03 tells us that, assuming the null hypothesis is true … there would be only a 3% chance of observing a difference at least as large as 4.1 points.” (Rubric 1, high confidence)  \n- Correct conclusion about the null hypothesis: “Because 0.03 is less than the conventional significance level of 0.05, we reject the null hypothesis.” (Rubric 2, high confidence)  \n- Distinguishes statistical and practical significance: “Statistical significance just tells us the difference probably did not arise from sampling variation alone; it does not tell us whether the difference is large enough to matter.” (Rubric 3, high confidence)  \n- Mentions limitations: “If it was one class, we cannot automatically generalise to other institutions… the study used 40 students per group, which is reasonable but not large.” (Rubric 4, high confidence)  \n- Clear reasoning in own words: “In summary, the result is statistically significant and gives us reason to investigate Method A further, but it does not prove Method A is universally superior.” (Rubric 5, high confidence)\n\n*Areas where explanation broke down*  \n- No quantitative discussion of effect size or confidence intervals to assess practical importance.  \n- Limited suggestion of alternative designs to improve generalisability.\n\n*Suggested follow‑up questions*  \n1. How would you assess the practical significance of the 4.1‑point difference?  \n2. What additional study designs could address the generalisability limitation?",
+      "seconds": 15.2
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+student_id,needs_attention,n_questions,grounded_count,grounded_share,n_planted,n_found,misconception_share,briefing_words,within_250,forbidden,guardrail_reasons
+S01,False,3,3,1.0,0,0,N/A,164,True,False,
+S02,False,4,4,1.0,1,0,0.0,145,True,False,
+S10,False,4,4,1.0,2,1,0.5,162,True,False,
