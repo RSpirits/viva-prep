@@ -54,6 +54,7 @@ AGENTS: list[dict] = [
             "question_planner",
             "briefing_writer",
             "class_insights",
+            "practice_partner",
         ],
         "knowledge_base": ["course_knowledge"],
     },

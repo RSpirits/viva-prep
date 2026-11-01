@@ -266,3 +266,47 @@ def test_prompts_contain_verbatim_sentences(
     assert sentence in text, (
         f"{prompt_file.name} is missing verbatim shared sentence:\n  {sentence!r}"
     )
+
+
+# ---------------------------------------------------------------------------
+# Test 9 — practice_partner step 1 mentions both get_approved_questions and
+#           the session-start message
+# ---------------------------------------------------------------------------
+
+def test_practice_partner_step1_mentions_get_approved_questions_and_session_start() -> None:
+    text = _load_text(PROMPTS_DIR / "practice_partner.md")
+    assert "get_approved_questions" in text, (
+        "practice_partner.md step 1 must mention get_approved_questions"
+    )
+    assert "session-start message" in text, (
+        "practice_partner.md step 1 must mention the session-start message"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Test 10 — agents/coordinator.yaml lists practice_partner as a collaborator
+# ---------------------------------------------------------------------------
+
+def test_coordinator_yaml_lists_practice_partner_collaborator() -> None:
+    agent_path = AGENTS_DIR / "coordinator.yaml"
+    if not agent_path.exists():
+        pytest.skip(f"{agent_path} not found — run scripts/build_agents.py first")
+    text = _load_text(agent_path)
+    # The collaborators block is a YAML list; check that practice_partner appears
+    # as a list item (e.g. "  - practice_partner")
+    assert re.search(r"^\s*-\s*practice_partner\s*$", text, re.MULTILINE), (
+        "agents/coordinator.yaml must list practice_partner as a collaborator"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Test 11 — prompts/coordinator.md says only approved question texts are passed
+#            to practice_partner
+# ---------------------------------------------------------------------------
+
+def test_coordinator_passes_only_approved_question_texts_to_practice_partner() -> None:
+    text = _load_text(PROMPTS_DIR / "coordinator.md")
+    assert "approved question texts only" in text, (
+        "prompts/coordinator.md must state that only the approved question texts "
+        "are passed to practice_partner"
+    )
