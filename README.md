@@ -136,7 +136,7 @@ What the ADK source (version 2.19.1) shows, checked offline against the built pa
 
 The import ran on the first attempt: 7 tools, the knowledge base and 5 agents. The agents use the instance's default model, `groq/openai/gpt-oss-120b`: the same model id as the batch runs, served through Groq instead of watsonx.ai. Orchestrate's sampling settings (for example the temperature) were not checked.
 
-**Spot-check.** `question_planner` and `briefing_writer` were called directly through the ADK run API for three students: S01 (no planted misconception), S02 (one) and S10 (two). The results were scored with the same `evaluate.py` and are in `results/orchestrate_spotcheck/`. Three students are a spot-check, not a measurement, so these numbers are kept apart from the batch rounds.
+**Spot-check.** `question_planner` and `briefing_writer` were called directly through the ADK run API for three students: S01 (no planted misconception), S02 (one) and S10 (two). The results were scored with the same `evaluate.py` and are in `results/orchestrate_spotcheck/`. The tool calls and tool responses behind the statements in this section are in `results/orchestrate_spotcheck/trace/` (account fields removed). Three students are a spot-check, not a measurement, so these numbers are kept apart from the batch rounds.
 
 | Target | Orchestrate, 3 students |
 |---|---|
