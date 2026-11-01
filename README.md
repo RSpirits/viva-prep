@@ -14,7 +14,7 @@ The project was built for the IBM SkillsBuild AI Experiential Learning Lab (Brin
 | `briefing_writer` | instructor | Writes a briefing of at most 250 words: what the student explained well, where the explanation broke down (quoting the student), and two suggested questions. Low-confidence points are phrased as "not sure — ask directly". |
 | `class_insights` | instructor | Summarises the most common gaps across the round in at most 300 words, using student IDs only. |
 
-Shared rules: no grades, scores or pass/fail verdicts; no statement or hint about whether the work was written by AI. Every text shown to a person first goes through `check_output` (a rule-based guardrail). Agents use only the submission, the rubric and the course knowledge base.
+Shared rules: no grades, scores or pass/fail verdicts; no statement or hint about whether the work was written by AI. Every agent is instructed to pass each text shown to a person through `check_output` (a rule-based guardrail) first; the first Orchestrate run found one case where this was skipped (see "Practice session"). Agents use only the submission, the rubric and the course knowledge base.
 
 Each agent's behaviour is written once, in `prompts/<agent>.md`. The Orchestrate agent files in `agents/` are generated from these files. The batch evaluation reads the same files, so the evaluation tests the instructions used in the demo.
 
