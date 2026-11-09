@@ -4,6 +4,8 @@ Viva Prep is a multi-agent assistant for IBM watsonx Orchestrate. It helps an in
 
 The project was built for the IBM SkillsBuild AI Experiential Learning Lab (Bring Your Own Challenge track). All data is synthetic: a fictional statistics course (STAT 110), a hypothesis-testing assignment and 18 fictional students (S01–S18). No real student data is used.
 
+Demo video (2:54): https://youtu.be/bdSdPGrWj-E. It was recorded in the Orchestrate web UI; the voice-over is text-to-speech.
+
 ## What the agents do
 
 | Agent | Talks to | Job |
